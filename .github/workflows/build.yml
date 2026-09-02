@@ -1,0 +1,40 @@
+name: build-mesa-git
+
+on:
+  schedule:
+    - cron: "0 4 * * 0"
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 240
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: cachix/install-nix-action@v31
+
+      - uses: cachix/cachix-action@v17
+        with:
+          name: mesa-git
+          authToken: "${{ secrets.CACHIX_AUTH_TOKEN }}"
+
+      - name: Bump mesa-src / nixpkgs
+        run: nix flake update
+
+      - name: Build mesa_git
+        run: nix build .#mesa_git -L
+
+      - name: Build mesa32_git
+        run: nix build .#mesa32_git -L
+
+      - name: Commit updated flake.lock
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add flake.lock
+          git diff --cached --quiet || git commit -m "flake.lock: weekly update"
+          git push
