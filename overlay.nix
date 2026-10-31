@@ -9,6 +9,12 @@
       pname = "mesa-git";
       version = gitVersion;
       src = mesa-src;
+      mesonFlags = builtins.map (
+        flag:
+          if builtins.match "^-Dvulkan-layers=.*" flag != null
+          then builtins.replaceStrings [",anti-lag" "anti-lag,"] ["" ""] flag
+          else flag
+      ) (old.mesonFlags or []);
       patches = (old.patches or []) ++ patchFn final;
     });
 in {
