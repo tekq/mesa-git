@@ -7,7 +7,9 @@
     else "${mesa-src}/meson_options.txt";
   hasAmdOptions =
     builtins.pathExists mesonOptionsPath
-    && builtins.match ".*option\\('amd-options'.*" (builtins.readFile mesonOptionsPath) != null;
+    && builtins.any (
+      line: builtins.match ".*option\\(['\"]amd-options['\"].*" line != null
+    ) (builtins.split "\n" (builtins.readFile mesonOptionsPath));
   buildGit = mesaPkg:
     (mesaPkg.override {
       # drop virtio (don't use this as a guest)
