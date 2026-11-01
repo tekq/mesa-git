@@ -8,7 +8,7 @@
   hasAmdOptions =
     builtins.pathExists mesonOptionsPath
     && builtins.any (
-      line: builtins.match ".*option\\(['\"]amd-options['\"].*" line != null
+      line: builtins.match ".*option[[:space:]]*\\([[:space:]]*['\"]amd-options['\"].*" line != null
     ) (builtins.filter builtins.isString (builtins.split "\n" (builtins.readFile mesonOptionsPath)));
   buildGit = mesaPkg:
     (mesaPkg.override {
