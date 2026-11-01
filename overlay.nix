@@ -13,6 +13,8 @@
         flag:
           if builtins.match "^-Dvulkan-layers=.*" flag != null
           then builtins.replaceStrings [",anti-lag" "anti-lag,"] ["" ""] flag
+          else if flag == "-Damdgpu-virtio=true"
+          then "-Damd-options=use-llvm,virtio"
           else flag
       ) (old.mesonFlags or []);
       patches = (old.patches or []) ++ patchFn final;
